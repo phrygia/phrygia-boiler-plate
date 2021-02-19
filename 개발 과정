@@ -1,3 +1,9 @@
+* git 명령어
+git add .
+git commit -m ""
+git push origin master  
+
+
 1. express 설치 (npm i express --save)
 2. mongoose 설치 (npm i mongoose --save)
 3. mongoDB model & schema 생성
@@ -16,4 +22,9 @@
 8. 비밀 설정 정보 관리
  - development (개발) / production (배포)
  - config 폴더와 파일 생성
- 
+9. 비밀번호 암호화 bcrypt 및 설정 (npm i bcrypt --save)
+10. 로그인 만들기 
+ - 사용자 비밀번호와 bcrypt 비밀번호가 같다면 token을 생성
+11. toekn 생성 라이브러리 (npm i jsonwebtoken --save)
+ - 토큰 저장 쿠키 (npm i cookie-parser --save)
+12. 
