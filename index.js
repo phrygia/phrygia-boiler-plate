@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const config = require('./config/key');
 
 const { User } = require('./models/User');
+const { auth } = require('./middleware/auth');
 const mongoose = require('mongoose');
 
 //application/x-www.form-urlencoded
@@ -26,7 +27,7 @@ mongoose.connect(config.mongoURI, {
 app.get('/', (req, res) => res.send('Hello world!'));
 
 // register
-app.post('/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
 
     // 회원 가입할때 필요한 정보들을 client에서 가져오면
     // 그것들을 데이터 베이스에 넣어준다.
@@ -45,7 +46,7 @@ app.post('/register', (req, res) => {
 })
 
 // login
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
     // 1. 요청된 이메일을 데이터베이스에서 있는지 찾는다.
     User.findOne({ email: req.body.email }, (err, user) => {
         if(!user) {
@@ -59,22 +60,47 @@ app.post('/login', (req, res) => {
         user.comparePassword(req.body.password, (err, isMatch) => {
             if(!isMatch) return res.json({ loginSuccess: false, message: '비밀번호가 틀렸습니다. '});
 
-            // 비밀번호가 같다면 token 생성
+            // 3. 비밀번호까지 같다면 token을 생성하기
             user.generateToken((err, user) => {
                 if(err) return res.status(400).send(err);
 
                 // 토큰을 저장한다. 어디에? 쿠키 or 로컬스토리지 등
-                res.cookir('x_auth', user.token).status(200).json({ loginSuccess: true, userId: user._id })
+                res.cookie('x_auth', user.token).status(200).json({ loginSuccess: true, userId: user._id })
                 
             })
         })
+    })
+})
 
+// auth - 미들웨어
+// role 0 -> 일반유저 0이 아니면 -> admin
+app.get('/api/users/auth', auth, (req, res) => {
+
+    // 여기까지 미들웨어를 통과해 왔다는 얘기는 Authetication이 true라는 말
+    res.status(200).json({
+        _id: req.user.id,
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true, 
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role, 
+        image: req.user.image
     })
 
-    
+})
 
-    // 3. 비밀번호까지 같다면 token을 생성하기
+// logout
+app.get('/api/users/logout', auth, (req, res) => {
+    User.findOneAndUpdate({ _id: req.user.id_id }, { token : '' }, (err, user) => {
+        if(err) return res.json({ success: false, err });
+        return res.status(200).send({
+            success: true
+        })
+    })
 })
 
 app.listen(port, () => console.log(`Express app listening on port ${port}!`));
+
+// token을 계속 체크를 한다 클라이언트에서 서버에 가져왕서 복호화를 한다 쿠키를 
 

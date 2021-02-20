@@ -27,4 +27,12 @@ git push origin master
  - 사용자 비밀번호와 bcrypt 비밀번호가 같다면 token을 생성
 11. toekn 생성 라이브러리 (npm i jsonwebtoken --save)
  - 토큰 저장 쿠키 (npm i cookie-parser --save)
-12. 
+   client에서는 토큰을 쿠키에 넣어주고 server에서는 user db에 넣어줌
+ - login 기능
+12. auth 기능 만들기
+ - cookie에 저장된 token을 server에서 가져와서 복호화를 한다.
+ - auth 미들웨어
+13. logout 기능 만들기
+ - 로그아웃 route 만들기 
+ - 로그아웃 하려는 유저를 db에서 차자서 유저의 토큰을 지워준다.
+14. 
